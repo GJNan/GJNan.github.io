@@ -23,7 +23,7 @@
     <!--Title-->
 
 
-<title>The first article | Winter Is Coming</title>
+<title>iOS Runtime day1 | Winter Is Coming</title>
 
 
     <link rel="alternate" href="/atom.xml" title="Winter Is Coming" type="application/atom+xml">
@@ -104,9 +104,9 @@
                     <p id="process"></p>
 <article class="post">
     <div class="post-head">
-        <h1 id="The first article">
+        <h1 id="iOS Runtime day1">
             
-            The first article
+            iOS Runtime day1
             
         </h1>
         <div class="post-meta">
@@ -114,7 +114,7 @@
     
     <span class="categories-meta fa-wrap">
         <i class="fa fa-folder-open-o"></i>
-        <span>Life</span>
+        <span>Technology</span>
     </span>
     
     
@@ -122,7 +122,7 @@
         <i class="fa fa-tags"></i>
         <span class="tags-meta">
             
-            Hello World
+            iOS
             
         </span>
     </span>
@@ -130,7 +130,7 @@
     
     <span class="fa-wrap">
         <i class="fa fa-clock-o"></i>
-        <span class="date-meta">2017/10/20</span>
+        <span class="date-meta">2017/10/24</span>
     </span>
 </div>
 
@@ -138,15 +138,48 @@
             
     </div>
     
-    <div id="post-gallery">
-        
-          <img src="http://chuantu.biz/t6/105/1508482428x974305605.png" alt="gallery-img" class="gallery">
-        
-    </div>
-
     <div class="post-body">
-        <p>Hi I`am Nan, welcome to my hut,i am a Apple developer so i will write some articles about iOS.i also will write some life articles,HHH.Last,Thank you all for coming.</p>
-<iframe height="44" width="300" src="http://m10.music.126.net/20171020152442/acb8ead545b1c1353bc2a13039da1cb7/ymusic/f5cf/5f7d/6fdc/1130474326e5d20435e6bad2b3015e8f.mp3" frameborder="0" allowfullscreen><br></iframe>  
+        <p><head><br>        <font size="6">初识 Runtime </font><br></head><br><br><br><br><strong>前言:什么是Method Swizzling,在iOS开发中他有什么作用?</strong></p>
+<p>简单来说我们主要使用Method Swizzling来把系统的方法交换为我们自己的方法,从而给系统方法添加一些我们想要的功能。<br><strong>Methond Swizzling通用方法封装</strong></p>
+<p>我们可以将Method Swizzling功能封装为类方法，作为NSObject的类别，这样我们后续调用也会方便些。</p>
+<pre><code>#import &lt;Foundation/Foundation.h&gt;
+#import &lt;objc/runtime.h&gt;
+@interface NSObject (Swizzling) 
++ (void)methodSwizzlingWithOriginalSelector:(SEL)originalSelector
+                         bySwizzledSelector:(SEL)swizzledSelector;
+@end</code></pre>
+<pre><code>#import "NSObject+Swizzling.h"
+@implementation NSObject (Swizzling)
++ (void)methodSwizzlingWithOriginalSelector:(SEL)originalSelector bySwizzledSelector:(SEL)swizzledSelector{
+    Class class = [self class];
+    //原有方法
+    Method originalMethod = class_getInstanceMethod(class, originalSelector);
+    //替换原有方法的新方法
+    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+    //先尝试給源SEL添加IMP，这里是为了避免源SEL没有实现IMP的情况
+    BOOL didAddMethod = class_addMethod(class,originalSelector,
+                                        method_getImplementation(swizzledMethod),
+                                        method_getTypeEncoding(swizzledMethod));
+    if (didAddMethod) {//添加成功：说明源SEL没有实现IMP，将源SEL的IMP替换到交换SEL的IMP
+        class_replaceMethod(class,swizzledSelector,
+                            method_getImplementation(originalMethod),
+                            method_getTypeEncoding(originalMethod));
+    } else {//添加失败：说明源SEL已经有IMP，直接将两个SEL的IMP交换即可
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+    }
+}
+@end</code></pre>
+
+<p></p><h6>⚠️补充知识点</h6><p></p>
+<ul><br><li><br><h6>SEL、Method、IMP的含义及区别</h6><br><p>在运行时，类（Class）维护了一个消息分发列表来解决消息的正确发送。每一个消息列表的入口是一个方法（Method），这个方法映射了一对键值对，其中键是这个方法的名字（SEL），值是指向这个方法实现的函数指针 implementation（IMP）。<br>伪代码表示：</p><br><pre><code>Class {<br>      MethodList (<br>                  Method{<br>                      SEL:IMP；<br>                  }<br>                  Method{<br>                      SEL:IMP；<br>                  }<br>                  );<br>      };</code></pre><br><p>Method Swizzling就是改变类的消息分发列表来让消息解析时从一个选择器（SEL）对应到另外一个的实现（IMP），同时将原始的方法实现混淆到一个新的选择器（SEL）。</p><br></li><br><li><br><h6>为什么要添加didAddMethod判断？</h6><br><p>先尝试添加原SEL其实是为了做一层保护，因为如果这个类没有实现originalSelector，但其父类实现了，那class_getInstanceMethod会返回父类的方法。这样method_exchangeImplementations替换的是父类的那个方法，这当然不是我们想要的。所以我们先尝试添加 orginalSelector，如果已经存在，再用 method_exchangeImplementations 把原方法的实现跟新的方法实现给交换掉。<br>如果理解还不够透彻，我们可以进入runtime.h中查看class_addMethod源码解释：</p><br><pre><code>/<em>* 
+</em> Adds a new method to a class with a given name and implementation.<br><em> 
+</em> @param cls The class to which to add a method.<br><em> @param name A selector that specifies the name of the method being added.
+</em> @param imp A function which is the implementation of the new method. The function must take at least two arguments—self and _cmd.<br><em> @param types An array of characters that describe the types of the arguments to the method. 
+</em><br><em> @return YES if the method was added successfully, otherwise NO 
+</em>  (for example, the class already contains a method implementation with that name).<br><em>
+</em> @note class_addMethod will add an override of a superclass’s implementation,<br><em>  but will not replace an existing implementation in this class. 
+</em>  To change an existing implementation, use method_setImplementation.<br>*/</code></pre><br><p>大概的意思就是我们可以通过class_addMethod为一个类添加方法（包括方法名称（SEL）和方法的实现（IMP）），返回值为BOOL类型，表示方法是否成功添加。<strong>需要注意的地方是class_addMethod会添加一个覆盖父类的实现，但不会取代原有类的实现。</strong>也就是说如果class_addMethod返回YES，说明子类中没有方法originalSelector，通过class_addMethod为其添加了方法originalSelector，并使其实现（IMP）为我们想要替换的实现。</p><br><pre><code>class_addMethod(class,originalSelector,<br>                                      method_getImplementation(swizzledMethod),<br>                                      method_getTypeEncoding(swizzledMethod));</code></pre><br><p>同时再将原有的实现（IMP）替换到swizzledMethod方法上，</p><br><pre><code>class_replaceMethod(class,swizzledSelector,<br>                          method_getImplementation(originalMethod),<br>                          method_getTypeEncoding(originalMethod));</code></pre><br><p>从而实现了方法的交换，并且未影响父类方法的实现。反之如果class_addMethod返回NO，说明子类中本身就具有方法originalSelector的实现，直接调用交换即可。</p><br><pre><code>method_exchangeImplementations(originalMethod, swizzledMethod);</code></pre><br><p><strong>这一部分内容比较绕口，希望大家可以耐下心来仔细反复阅读。</strong></p><br></li><br></ul>
+
     </div>
 
     <div class="post-footer">   
@@ -167,8 +200,8 @@
 
 <div class="article-nav prev-next-wrap clearfix">
     
-        <a href="/2017/10/20/操作Hexo写文章/" class="pre-post btn btn-default"><i class="fa fa-angle-left fa-fw"></i>上一篇</a>
     
+        <a href="/2017/10/24/iOS11一些适配问题;Masonry冲突问题/" class="next-post btn btn-default">下一篇<i class="fa fa-angle-right fa-fw"></i></a>
     
 </div>
 
