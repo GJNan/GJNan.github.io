@@ -23,7 +23,7 @@
     <!--Title-->
 
 
-<title>iOS11一些适配问题;Masonry冲突问题 | Winter Is Coming</title>
+<title>iOS Runtime Day2 | Winter Is Coming</title>
 
 
     <link rel="alternate" href="/atom.xml" title="Winter Is Coming" type="application/atom+xml">
@@ -104,9 +104,9 @@
                     <p id="process"></p>
 <article class="post">
     <div class="post-head">
-        <h1 id="iOS11一些适配问题;Masonry冲突问题">
+        <h1 id="iOS Runtime Day2">
             
-            iOS11一些适配问题;Masonry冲突问题
+            iOS Runtime Day2
             
         </h1>
         <div class="post-meta">
@@ -122,7 +122,7 @@
         <i class="fa fa-tags"></i>
         <span class="tags-meta">
             
-            Hello World
+            iOS
             
         </span>
     </span>
@@ -130,47 +130,99 @@
     
     <span class="fa-wrap">
         <i class="fa fa-clock-o"></i>
-        <span class="date-meta">2017/10/24</span>
+        <span class="date-meta">2016/05/27</span>
     </span>
 </div>
 
             
             
+            <p class="fa fa-exclamation-triangle warning">
+                本文于<strong>538</strong>天之前发表，文中内容可能已经过时。
+            </p>
+            
     </div>
     
     <div class="post-body">
-        <p>#iOS11 方面</p>
-<p>##针对contentlnset</p>
-<p>###在AppDelegate.m中写</p>
+        <p> <div class="text" style=" text-align:center;"><font size="6">第二天学习Runtime</font></div></p>
 <blockquote>
-<p>if (@available(iOS 11, *)) {<br>    [UIScrollView appearance].contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;<br>}</p>
+<p>过了两天左右重新温习了下第一天的东西，犯了个很sb的错误。</p>
 </blockquote>
-<p>#导航栏变化</p>
-<p>##导航栏高度变化</p>
-<p>####导航栏在iOS10之前都是默认的64P，但是，到了iOS10就不单单是64P了，可以看一下系统的信息应用程序，在iOS11添加了大标题，效果如下图:<br><img src="http://chuantu.biz/t6/109/1508812823x974305605.png" alt=""></p>
-<p>####导航栏的结构<br><img src="http://chuantu.biz/t6/109/1508812915x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片1</div><br>    <br><br><br><img src="http://chuantu.biz/t6/109/1508812979x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片2</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508813002x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片3</div></p>
-<p>####在上面三幅图可以知道，在iOS11导航栏多了一个LargeTitleView，专门显示大字标题用的，整个导航栏的高度达到了96P，这不包括状态栏的高度，也就是说，整个应用程序顶部高度达到了116p，其中statusbar = 20，title = 44，largetitle = 52，<font color="#FF0000"> 不过默认是64p</font>;当然，iPhoneX的高度会更高点，如果不显示大字标题，<font color="#FF0000">顶部的高度也达到了88</font>，statusbar = 44，title = 44，如果显示大字标题，则高度变成了140，statusbar = 44，title = 44，largetitle = 52，也就是说，iPhoneX的刘海高度为24p，大字标题如下图：</p>
-<p><img src="http://chuantu.biz/t6/109/1508813131x2890149655.png" alt=""><br><img src="http://chuantu.biz/t6/109/1508813195x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片4</div><br>        <br><br></p>
-<p>##导航栏图层变化</p>
-<p>####iOS11之前导航栏的标题是添加在UINavigationItemView上面，而navigationBarButton则直接添加在的导航栏上面;如果设置了titleview的，则titleview的也是直接添加在的导航栏上面，如图5：<br><img src="http://chuantu.biz/t6/109/1508814425x2890149655.png" alt=""><br>    <div class="text" style=" text-align:center;">图片5</div><br>        <br><br></p>
-<p>####在iOS11之后，苹果添加了新的类来管理，的导航栏会添加在_UIButtonBarStackView上面，而_UIButtonBarStackView则添加在_UINavigationBarContentView上面;如果没有给titleview的赋值，则titleview的会直接添加在_UINavigationBarContentView上面，如果赋值给了titleview的，则会新生成_UITAMICAdaptorView，把titleview的添加在这个类上面，这个类会添加在_UINavigationBarContentView上面，如下图6,7：<br><img src="http://chuantu.biz/t6/109/1508814605x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片6</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508814639x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片7</div><br>        <br><br></p>
-<p>##导航栏的边距变化</p>
-<p>####在iOS11对导航栏里面的物品的边距也做了调整:</p>
-<ol>
-<li>如果只是设置了titleview的,没有设置barbutton,把tileview的宽度设置为屏幕的宽度,则titleview的距离屏幕的边距,在iOS11前,在iPhone6p之前是16P;iOS11之后,在ipone6p上是12P,在ipone6p之前是8P。</li>
-<li><p>如果只是设置了barbutton，没有设置titleview的，则在iOS11里，barButton距离屏幕的边距是20P和16P;在iOS11之前，barButton距离屏幕的边距也是20P和16P。</p>
-</li>
-<li><p>如果同时设置了barbutton和titleview,则在iOS11之前，titleview的和barbutton之间的间距是6P，在iOS11上titleview的和barbutton之间无间距。<br><img src="http://chuantu.biz/t6/109/1508815586x974305605.png" alt=""></p>
-</li>
-</ol>
-<p>附简书原文链接:<a href="http://www.jianshu.com/p/18374fbdb972" target="_blank" rel="external">原文链接</a></p>
-<h1 id="masonry约束出错-当约束冲突又找不到是哪几个view时"><a href="#masonry约束出错-当约束冲突又找不到是哪几个view时" class="headerlink" title="masonry约束出错(当约束冲突又找不到是哪几个view时)"></a>masonry约束出错(当约束冲突又找不到是哪几个view时)</h1><p>##可以设置key值 </p>
-<p>###self.view.mas_key = @”self.view”</p>
-<p>###otherview.mas_key = @”otherview”</p>
-<p>##当view太多时可以用Masonry提供的批量设置的宏 MASAttachKeys</p>
+<p><br><br></p>
+<pre><code>
+ //原有方法
+    Method originalMethod = class_getInstanceMethod(class, originalSelector);
+    //新方法
+    Method swizzledMethod = class_getInstanceMethod(class, originalSelector);#这里 当时没在意 后来在写替换NSMutableArray系统方法防止数组操作错误时，并没有跟预想的一样，越界的时候还是会crash,懵逼。。。  检查后才发现写错了 真的不细心
+  改->
+     //原有方法
+    Method originalMethod = class_getInstanceMethod(class, originalSelector);
+    //新方法
+    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+
+</code></pre>
+
 <blockquote>
-<p>  MASAttachKeys(self.singImg,self.contextLabel,self.TitleLabel)</p>
+<p>试着写了一下替换ViewController生命周期的方法 很有意思 也有点不理解 问题留着以后想通了再解释吧<br>&gt;<br><br><br></p>
 </blockquote>
+<p><pre><code></code></pre></p>
+<p>#import “UIViewController+Swizzling.h”</p>
+<p>#import “NSObject+Swizzling.h”<br>@implementation UIViewController (Swizzling)</p>
+<ul>
+<li>(void)load {<br>  static dispatch_once_t onceToken;<br>  dispatch_once(&amp;onceToken, ^{<pre><code>[self methodSwizzlingWithOriginalSelector:@selector(viewWillDisappear:) bySwizzledSelector:@selector(sure_viewWillDisappear:)];
+</code></pre>  });<br>}</li>
+</ul>
+<ul>
+<li>(void)sure_viewWillDisappear:(BOOL)animated {<br>  [self sure_viewWillDisappear:animated];<br>  [SVProgressHUD dismiss];<br>}<br><br><br><br><br>用的是SVProgressHUD 众所周知 这个提示框是用单利写的<hr><br>意思也很明白 只存在一个<hr><br>用两个控制器试了一下<br>firstVC.m<br><pre><code></code></pre></li>
+<li>(void)viewDidLoad {<br>  [super viewDidLoad];<br>  // Do any additional setup after loading the view.<br>  self.view.backgroundColor =[UIColor yellowColor];<br>  UIButton *bun =[UIButton buttonWithType:UIButtonTypeCustom];<br>  bun.frame = CGRectMake(100, 200, 100, 100);<br>  [bun setTitle:@”下一个” forState:UIControlStateNormal];<br>  [bun addTarget:self action:@selector(Next) forControlEvents:UIControlEventTouchUpInside];<br>  [self.view addSubview:bun];</li>
+</ul>
+<p>}</p>
+<ul>
+<li>(void)Next<br>{<br>  [SVProgressHUD showWithStatus:@”我要去第二个界面了”];<br>  SecondViewController *second =[[SecondViewController alloc]init];<br>  [self.navigationController pushViewController:second animated:NO];</li>
+</ul>
+<p>}<br><br><strong>这没什么问题，但是第二个控制器出了些问题</strong><br>SecondViewController.m<br><code><pre></pre></code></p>
+<ul>
+<li>(void)viewDidLoad {<br>  [super viewDidLoad];<br>  self.view.backgroundColor =[UIColor redColor];<br>}</li>
+<li>(void)viewWillDisappear:(BOOL)animated<br>{<br>  [super viewWillDisappear:animated];<br>  [SVProgressHUD showSuccessWithStatus:@”返回第一个”];<br>}</li>
+</ul>
+<p><br><strong><br>回到第一个控制器的HUD并没有消失，等待自己解答吧。<br></strong></p>
+<blockquote>
+<p>学了修改nsmutablearray的系统方法，防止数组过界crash。挺有趣的 尝试又改了几个类<br><br><br></p>
+</blockquote>
+<p><pre><code>#import “NSMutableArray+Swizzling.h”</code></pre></p>
+<p> #import “NSObject+Swizzling.h”</p>
+<p> #import &lt;objc/runtime.h&gt;</p>
+<p>@implementation NSMutableArray (Swizzling)<br> +(void)load<br>{<br>    static dispatch_once_t onceToken;<br>    dispatch_once(&amp;onceToken, ^{<br>          [objc_getClass(“<strong>NSArrayM”) methodSwizzlingWithOriginalSelector:@selector(removeObject:) bySwizzledSelector:@selector(safeRemoveObject:)];<br>        [objc_getClass(“</strong>NSArrayM”) methodSwizzlingWithOriginalSelector:@selector(addObject:) bySwizzledSelector:@selector(safeAddObject:)];<br>        [objc_getClass(“<strong>NSArrayM”) methodSwizzlingWithOriginalSelector:@selector(removeObjectAtIndex:) bySwizzledSelector:@selector(safeRemoveObjectAtIndex:)];<br>        [objc_getClass(“</strong>NSArrayM”) methodSwizzlingWithOriginalSelector:@selector(insertObject:atIndex:) bySwizzledSelector:@selector(safeInsertObject:atIndex:)];<br>        [objc_getClass(“__NSArrayM”) methodSwizzlingWithOriginalSelector:@selector(objectAtIndex:) bySwizzledSelector:@selector(safeObjectAtIndex:)];<br>    });</p>
+<p>}</p>
+<ul>
+<li>(void)safeAddObject:(id)obj<br>{<br> if (obj == nil) {<pre><code>NSLog(@&quot;%s can add nil object into NSMutableArray&quot;, __FUNCTION__);
+</code></pre> }else {<pre><code>[self safeAddObject:obj];
+</code></pre> }</li>
+</ul>
+<p>}</p>
+<ul>
+<li>(void)safeRemoveObject:(id)obj {<br> if (obj == nil) {<pre><code>NSLog(@&quot;%s call -removeObject:, but argument obj is nil&quot;, __FUNCTION__);
+return;
+</code></pre> }<br> [self safeRemoveObject:obj];<br>}</li>
+<li>(void)safeInsertObject:(id)anObject atIndex:(NSUInteger)index {<br> if (anObject == nil) {<pre><code>NSLog(@&quot;%s can&apos;t insert nil into NSMutableArray&quot;, __FUNCTION__);
+</code></pre> } else if (index &gt; self.count) {<pre><code>NSLog(@&quot;%s index is invalid&quot;, __FUNCTION__);
+</code></pre> } else {<pre><code>[self safeInsertObject:anObject atIndex:index];
+</code></pre> }<br>}</li>
+<li>(id)safeObjectAtIndex:(NSUInteger)index {<br> if (self.count == 0) {<pre><code>NSLog(@&quot;%s can&apos;t get any object from an empty array&quot;, __FUNCTION__);
+return nil;
+</code></pre> }<br> if (index &gt; self.count) {<pre><code>NSLog(@&quot;%s index out of bounds in array&quot;, __FUNCTION__);
+return nil;
+</code></pre> }<br> return [self safeObjectAtIndex:index];<br>}</li>
+<li>(void)safeRemoveObjectAtIndex:(NSUInteger)index {<br> if (self.count &lt;= 0) {<pre><code>NSLog(@&quot;%s can&apos;t get any object from an empty array&quot;, __FUNCTION__);
+return;
+</code></pre> }<br> if (index &gt;= self.count) {<pre><code>NSLog(@&quot;%s index out of bound&quot;, __FUNCTION__);
+return;
+</code></pre> }<br> [self safeRemoveObjectAtIndex:index];<br>}</li>
+</ul>
+<p>@end</p>
+<p></p>
+<p>对应大家可以举一反三，相应的实现添加、删除等，以及NSArray、NSDictionary等操作，因代码篇幅较大，这里就不一一书写了。<br>这里没有使用self来调用，而是使用objc_getClass(“__NSArrayM”)来调用的。因为NSMutableArray的真实类只能通过后者来获取，而不能通过[self class]来获取，而method swizzling只对真实的类起作用。这里就涉及到一个小知识点：类簇。补充以上对象对应类簇表。<br></p>
+
+<p>先写到这</p>
 
     </div>
 
@@ -192,8 +244,10 @@
 
 <div class="article-nav prev-next-wrap clearfix">
     
+        <a href="/2017/10/24/iOS11一些适配问题;Masonry冲突问题/" class="pre-post btn btn-default"><i class="fa fa-angle-left fa-fw"></i>上一篇</a>
     
-        <a href="/2016/05/27/RuntimeDay2/" class="next-post btn btn-default">下一篇<i class="fa fa-angle-right fa-fw"></i></a>
+    
+        <a href="/2016/04/24/初识Runtime/" class="next-post btn btn-default">下一篇<i class="fa fa-angle-right fa-fw"></i></a>
     
 </div>
 

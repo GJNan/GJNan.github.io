@@ -23,7 +23,7 @@
     <!--Title-->
 
 
-<title>iOS11一些适配问题;Masonry冲突问题 | Winter Is Coming</title>
+<title>The first article | Winter Is Coming</title>
 
 
     <link rel="alternate" href="/atom.xml" title="Winter Is Coming" type="application/atom+xml">
@@ -104,9 +104,9 @@
                     <p id="process"></p>
 <article class="post">
     <div class="post-head">
-        <h1 id="iOS11一些适配问题;Masonry冲突问题">
+        <h1 id="The first article">
             
-            iOS11一些适配问题;Masonry冲突问题
+            The first article
             
         </h1>
         <div class="post-meta">
@@ -114,7 +114,7 @@
     
     <span class="categories-meta fa-wrap">
         <i class="fa fa-folder-open-o"></i>
-        <span>Technology</span>
+        <span>Life</span>
     </span>
     
     
@@ -130,47 +130,27 @@
     
     <span class="fa-wrap">
         <i class="fa fa-clock-o"></i>
-        <span class="date-meta">2017/10/24</span>
+        <span class="date-meta">2016/01/20</span>
     </span>
 </div>
 
             
             
+            <p class="fa fa-exclamation-triangle warning">
+                本文于<strong>666</strong>天之前发表，文中内容可能已经过时。
+            </p>
+            
     </div>
     
+    <div id="post-gallery">
+        
+          <img src="http://chuantu.biz/t6/105/1508482428x974305605.png" alt="gallery-img" class="gallery">
+        
+    </div>
+
     <div class="post-body">
-        <p>#iOS11 方面</p>
-<p>##针对contentlnset</p>
-<p>###在AppDelegate.m中写</p>
-<blockquote>
-<p>if (@available(iOS 11, *)) {<br>    [UIScrollView appearance].contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;<br>}</p>
-</blockquote>
-<p>#导航栏变化</p>
-<p>##导航栏高度变化</p>
-<p>####导航栏在iOS10之前都是默认的64P，但是，到了iOS10就不单单是64P了，可以看一下系统的信息应用程序，在iOS11添加了大标题，效果如下图:<br><img src="http://chuantu.biz/t6/109/1508812823x974305605.png" alt=""></p>
-<p>####导航栏的结构<br><img src="http://chuantu.biz/t6/109/1508812915x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片1</div><br>    <br><br><br><img src="http://chuantu.biz/t6/109/1508812979x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片2</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508813002x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片3</div></p>
-<p>####在上面三幅图可以知道，在iOS11导航栏多了一个LargeTitleView，专门显示大字标题用的，整个导航栏的高度达到了96P，这不包括状态栏的高度，也就是说，整个应用程序顶部高度达到了116p，其中statusbar = 20，title = 44，largetitle = 52，<font color="#FF0000"> 不过默认是64p</font>;当然，iPhoneX的高度会更高点，如果不显示大字标题，<font color="#FF0000">顶部的高度也达到了88</font>，statusbar = 44，title = 44，如果显示大字标题，则高度变成了140，statusbar = 44，title = 44，largetitle = 52，也就是说，iPhoneX的刘海高度为24p，大字标题如下图：</p>
-<p><img src="http://chuantu.biz/t6/109/1508813131x2890149655.png" alt=""><br><img src="http://chuantu.biz/t6/109/1508813195x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片4</div><br>        <br><br></p>
-<p>##导航栏图层变化</p>
-<p>####iOS11之前导航栏的标题是添加在UINavigationItemView上面，而navigationBarButton则直接添加在的导航栏上面;如果设置了titleview的，则titleview的也是直接添加在的导航栏上面，如图5：<br><img src="http://chuantu.biz/t6/109/1508814425x2890149655.png" alt=""><br>    <div class="text" style=" text-align:center;">图片5</div><br>        <br><br></p>
-<p>####在iOS11之后，苹果添加了新的类来管理，的导航栏会添加在_UIButtonBarStackView上面，而_UIButtonBarStackView则添加在_UINavigationBarContentView上面;如果没有给titleview的赋值，则titleview的会直接添加在_UINavigationBarContentView上面，如果赋值给了titleview的，则会新生成_UITAMICAdaptorView，把titleview的添加在这个类上面，这个类会添加在_UINavigationBarContentView上面，如下图6,7：<br><img src="http://chuantu.biz/t6/109/1508814605x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片6</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508814639x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片7</div><br>        <br><br></p>
-<p>##导航栏的边距变化</p>
-<p>####在iOS11对导航栏里面的物品的边距也做了调整:</p>
-<ol>
-<li>如果只是设置了titleview的,没有设置barbutton,把tileview的宽度设置为屏幕的宽度,则titleview的距离屏幕的边距,在iOS11前,在iPhone6p之前是16P;iOS11之后,在ipone6p上是12P,在ipone6p之前是8P。</li>
-<li><p>如果只是设置了barbutton，没有设置titleview的，则在iOS11里，barButton距离屏幕的边距是20P和16P;在iOS11之前，barButton距离屏幕的边距也是20P和16P。</p>
-</li>
-<li><p>如果同时设置了barbutton和titleview,则在iOS11之前，titleview的和barbutton之间的间距是6P，在iOS11上titleview的和barbutton之间无间距。<br><img src="http://chuantu.biz/t6/109/1508815586x974305605.png" alt=""></p>
-</li>
-</ol>
-<p>附简书原文链接:<a href="http://www.jianshu.com/p/18374fbdb972" target="_blank" rel="external">原文链接</a></p>
-<h1 id="masonry约束出错-当约束冲突又找不到是哪几个view时"><a href="#masonry约束出错-当约束冲突又找不到是哪几个view时" class="headerlink" title="masonry约束出错(当约束冲突又找不到是哪几个view时)"></a>masonry约束出错(当约束冲突又找不到是哪几个view时)</h1><p>##可以设置key值 </p>
-<p>###self.view.mas_key = @”self.view”</p>
-<p>###otherview.mas_key = @”otherview”</p>
-<p>##当view太多时可以用Masonry提供的批量设置的宏 MASAttachKeys</p>
-<blockquote>
-<p>  MASAttachKeys(self.singImg,self.contextLabel,self.TitleLabel)</p>
-</blockquote>
+        <p>Hi I`am Nan, welcome to my hut,i am a Apple developer so i will write some articles about iOS.i also will write some life articles,HHH.Last,Thank you all for coming.</p>
+<iframe height="44" width="300" src="http://m10.music.126.net/20171020152442/acb8ead545b1c1353bc2a13039da1cb7/ymusic/f5cf/5f7d/6fdc/1130474326e5d20435e6bad2b3015e8f.mp3" frameborder="0" allowfullscreen><br></iframe>  
 
     </div>
 
@@ -192,8 +172,8 @@
 
 <div class="article-nav prev-next-wrap clearfix">
     
+        <a href="/2016/01/20/操作Hexo写文章/" class="pre-post btn btn-default"><i class="fa fa-angle-left fa-fw"></i>上一篇</a>
     
-        <a href="/2016/05/27/RuntimeDay2/" class="next-post btn btn-default">下一篇<i class="fa fa-angle-right fa-fw"></i></a>
     
 </div>
 

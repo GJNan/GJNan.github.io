@@ -3,8 +3,62 @@
   
     
     <entry>
+      <title><![CDATA[iOS11一些适配问题;Masonry冲突问题]]></title>
+      <url>/2017/10/24/iOS11%E4%B8%80%E4%BA%9B%E9%80%82%E9%85%8D%E9%97%AE%E9%A2%98;Masonry%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/</url>
+      <content type="html"><![CDATA[<p>#iOS11 方面</p>
+<p>##针对contentlnset</p>
+<p>###在AppDelegate.m中写</p>
+<blockquote>
+<p>if (@available(iOS 11, *)) {<br>    [UIScrollView appearance].contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;<br>}</p>
+</blockquote>
+<p>#导航栏变化</p>
+<p>##导航栏高度变化</p>
+<p>####导航栏在iOS10之前都是默认的64P，但是，到了iOS10就不单单是64P了，可以看一下系统的信息应用程序，在iOS11添加了大标题，效果如下图:<br><img src="http://chuantu.biz/t6/109/1508812823x974305605.png" alt=""></p>
+<p>####导航栏的结构<br><img src="http://chuantu.biz/t6/109/1508812915x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片1</div><br>    <br><br><br><img src="http://chuantu.biz/t6/109/1508812979x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片2</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508813002x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片3</div></p>
+<p>####在上面三幅图可以知道，在iOS11导航栏多了一个LargeTitleView，专门显示大字标题用的，整个导航栏的高度达到了96P，这不包括状态栏的高度，也就是说，整个应用程序顶部高度达到了116p，其中statusbar = 20，title = 44，largetitle = 52，<font color="#FF0000"> 不过默认是64p</font>;当然，iPhoneX的高度会更高点，如果不显示大字标题，<font color="#FF0000">顶部的高度也达到了88</font>，statusbar = 44，title = 44，如果显示大字标题，则高度变成了140，statusbar = 44，title = 44，largetitle = 52，也就是说，iPhoneX的刘海高度为24p，大字标题如下图：</p>
+<p><img src="http://chuantu.biz/t6/109/1508813131x2890149655.png" alt=""><br><img src="http://chuantu.biz/t6/109/1508813195x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片4</div><br>        <br><br></p>
+<p>##导航栏图层变化</p>
+<p>####iOS11之前导航栏的标题是添加在UINavigationItemView上面，而navigationBarButton则直接添加在的导航栏上面;如果设置了titleview的，则titleview的也是直接添加在的导航栏上面，如图5：<br><img src="http://chuantu.biz/t6/109/1508814425x2890149655.png" alt=""><br>    <div class="text" style=" text-align:center;">图片5</div><br>        <br><br></p>
+<p>####在iOS11之后，苹果添加了新的类来管理，的导航栏会添加在_UIButtonBarStackView上面，而_UIButtonBarStackView则添加在_UINavigationBarContentView上面;如果没有给titleview的赋值，则titleview的会直接添加在_UINavigationBarContentView上面，如果赋值给了titleview的，则会新生成_UITAMICAdaptorView，把titleview的添加在这个类上面，这个类会添加在_UINavigationBarContentView上面，如下图6,7：<br><img src="http://chuantu.biz/t6/109/1508814605x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片6</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508814639x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片7</div><br>        <br><br></p>
+<p>##导航栏的边距变化</p>
+<p>####在iOS11对导航栏里面的物品的边距也做了调整:</p>
+<ol>
+<li>如果只是设置了titleview的,没有设置barbutton,把tileview的宽度设置为屏幕的宽度,则titleview的距离屏幕的边距,在iOS11前,在iPhone6p之前是16P;iOS11之后,在ipone6p上是12P,在ipone6p之前是8P。</li>
+<li><p>如果只是设置了barbutton，没有设置titleview的，则在iOS11里，barButton距离屏幕的边距是20P和16P;在iOS11之前，barButton距离屏幕的边距也是20P和16P。</p>
+</li>
+<li><p>如果同时设置了barbutton和titleview,则在iOS11之前，titleview的和barbutton之间的间距是6P，在iOS11上titleview的和barbutton之间无间距。<br><img src="http://chuantu.biz/t6/109/1508815586x974305605.png" alt=""></p>
+</li>
+</ol>
+<p>附简书原文链接:<a href="http://www.jianshu.com/p/18374fbdb972" target="_blank" rel="external">原文链接</a></p>
+<h1 id="masonry约束出错-当约束冲突又找不到是哪几个view时"><a href="#masonry约束出错-当约束冲突又找不到是哪几个view时" class="headerlink" title="masonry约束出错(当约束冲突又找不到是哪几个view时)"></a>masonry约束出错(当约束冲突又找不到是哪几个view时)</h1><p>##可以设置key值 </p>
+<p>###self.view.mas_key = @”self.view”</p>
+<p>###otherview.mas_key = @”otherview”</p>
+<p>##当view太多时可以用Masonry提供的批量设置的宏 MASAttachKeys</p>
+<blockquote>
+<p>  MASAttachKeys(self.singImg,self.contextLabel,self.TitleLabel)</p>
+</blockquote>
+]]></content>
+      
+        <categories>
+            
+            <category> Technology </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Hello World </tag>
+            
+            <tag> iOS </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[iOS Runtime Day2]]></title>
-      <url>/2017/10/27/RuntimeDay2/</url>
+      <url>/2016/05/27/RuntimeDay2/</url>
       <content type="html"><![CDATA[<p> <div class="text" style=" text-align:center;"><font size="6">第二天学习Runtime</font></div></p>
 <blockquote>
 <p>过了两天左右重新温习了下第一天的东西，犯了个很sb的错误。</p>
@@ -104,7 +158,7 @@ return;
     
     <entry>
       <title><![CDATA[iOS Runtime day1]]></title>
-      <url>/2017/10/24/%E5%88%9D%E8%AF%86Runtime/</url>
+      <url>/2016/04/24/%E5%88%9D%E8%AF%86Runtime/</url>
       <content type="html"><![CDATA[<p><head><br>        <font size="6">初识 Runtime </font><br></head><br><br><br><br><strong>前言:什么是Method Swizzling,在iOS开发中他有什么作用?</strong></p>
 <p>简单来说我们主要使用Method Swizzling来把系统的方法交换为我们自己的方法,从而给系统方法添加一些我们想要的功能。<br><strong>Methond Swizzling通用方法封装</strong></p>
 <p>我们可以将Method Swizzling功能封装为类方法，作为NSObject的类别，这样我们后续调用也会方便些。</p>
@@ -163,62 +217,8 @@ return;
     </entry>
     
     <entry>
-      <title><![CDATA[iOS11一些适配问题;Masonry冲突问题]]></title>
-      <url>/2017/10/24/iOS11%E4%B8%80%E4%BA%9B%E9%80%82%E9%85%8D%E9%97%AE%E9%A2%98;Masonry%E5%86%B2%E7%AA%81%E9%97%AE%E9%A2%98/</url>
-      <content type="html"><![CDATA[<p>#iOS11 方面</p>
-<p>##针对contentlnset</p>
-<p>###在AppDelegate.m中写</p>
-<blockquote>
-<p>if (@available(iOS 11, *)) {<br>    [UIScrollView appearance].contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;<br>}</p>
-</blockquote>
-<p>#导航栏变化</p>
-<p>##导航栏高度变化</p>
-<p>####导航栏在iOS10之前都是默认的64P，但是，到了iOS10就不单单是64P了，可以看一下系统的信息应用程序，在iOS11添加了大标题，效果如下图:<br><img src="http://chuantu.biz/t6/109/1508812823x974305605.png" alt=""></p>
-<p>####导航栏的结构<br><img src="http://chuantu.biz/t6/109/1508812915x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片1</div><br>    <br><br><br><img src="http://chuantu.biz/t6/109/1508812979x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片2</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508813002x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片3</div></p>
-<p>####在上面三幅图可以知道，在iOS11导航栏多了一个LargeTitleView，专门显示大字标题用的，整个导航栏的高度达到了96P，这不包括状态栏的高度，也就是说，整个应用程序顶部高度达到了116p，其中statusbar = 20，title = 44，largetitle = 52，<font color="#FF0000"> 不过默认是64p</font>;当然，iPhoneX的高度会更高点，如果不显示大字标题，<font color="#FF0000">顶部的高度也达到了88</font>，statusbar = 44，title = 44，如果显示大字标题，则高度变成了140，statusbar = 44，title = 44，largetitle = 52，也就是说，iPhoneX的刘海高度为24p，大字标题如下图：</p>
-<p><img src="http://chuantu.biz/t6/109/1508813131x2890149655.png" alt=""><br><img src="http://chuantu.biz/t6/109/1508813195x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片4</div><br>        <br><br></p>
-<p>##导航栏图层变化</p>
-<p>####iOS11之前导航栏的标题是添加在UINavigationItemView上面，而navigationBarButton则直接添加在的导航栏上面;如果设置了titleview的，则titleview的也是直接添加在的导航栏上面，如图5：<br><img src="http://chuantu.biz/t6/109/1508814425x2890149655.png" alt=""><br>    <div class="text" style=" text-align:center;">图片5</div><br>        <br><br></p>
-<p>####在iOS11之后，苹果添加了新的类来管理，的导航栏会添加在_UIButtonBarStackView上面，而_UIButtonBarStackView则添加在_UINavigationBarContentView上面;如果没有给titleview的赋值，则titleview的会直接添加在_UINavigationBarContentView上面，如果赋值给了titleview的，则会新生成_UITAMICAdaptorView，把titleview的添加在这个类上面，这个类会添加在_UINavigationBarContentView上面，如下图6,7：<br><img src="http://chuantu.biz/t6/109/1508814605x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片6</div><br>        <br><br><br><img src="http://chuantu.biz/t6/109/1508814639x974305605.png" alt=""><br>    <div class="text" style=" text-align:center;">图片7</div><br>        <br><br></p>
-<p>##导航栏的边距变化</p>
-<p>####在iOS11对导航栏里面的物品的边距也做了调整:</p>
-<ol>
-<li>如果只是设置了titleview的,没有设置barbutton,把tileview的宽度设置为屏幕的宽度,则titleview的距离屏幕的边距,在iOS11前,在iPhone6p之前是16P;iOS11之后,在ipone6p上是12P,在ipone6p之前是8P。</li>
-<li><p>如果只是设置了barbutton，没有设置titleview的，则在iOS11里，barButton距离屏幕的边距是20P和16P;在iOS11之前，barButton距离屏幕的边距也是20P和16P。</p>
-</li>
-<li><p>如果同时设置了barbutton和titleview,则在iOS11之前，titleview的和barbutton之间的间距是6P，在iOS11上titleview的和barbutton之间无间距。<br><img src="http://chuantu.biz/t6/109/1508815586x974305605.png" alt=""></p>
-</li>
-</ol>
-<p>附简书原文链接:<a href="http://www.jianshu.com/p/18374fbdb972" target="_blank" rel="external">原文链接</a></p>
-<h1 id="masonry约束出错-当约束冲突又找不到是哪几个view时"><a href="#masonry约束出错-当约束冲突又找不到是哪几个view时" class="headerlink" title="masonry约束出错(当约束冲突又找不到是哪几个view时)"></a>masonry约束出错(当约束冲突又找不到是哪几个view时)</h1><p>##可以设置key值 </p>
-<p>###self.view.mas_key = @”self.view”</p>
-<p>###otherview.mas_key = @”otherview”</p>
-<p>##当view太多时可以用Masonry提供的批量设置的宏 MASAttachKeys</p>
-<blockquote>
-<p>  MASAttachKeys(self.singImg,self.contextLabel,self.TitleLabel)</p>
-</blockquote>
-]]></content>
-      
-        <categories>
-            
-            <category> Technology </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> iOS </tag>
-            
-            <tag> Hello World </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
       <title><![CDATA[让我们来简单操作下hexo]]></title>
-      <url>/2017/10/20/%E6%93%8D%E4%BD%9CHexo%E5%86%99%E6%96%87%E7%AB%A0/</url>
+      <url>/2016/01/20/%E6%93%8D%E4%BD%9CHexo%E5%86%99%E6%96%87%E7%AB%A0/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>萌新写着玩的,只是方便自己查看~~</p>
 </blockquote>
@@ -269,9 +269,10 @@ return;
     
     <entry>
       <title><![CDATA[The first article]]></title>
-      <url>/2017/10/20/The%20first%20article/</url>
+      <url>/2016/01/20/The%20first%20article/</url>
       <content type="html"><![CDATA[<p>Hi I`am Nan, welcome to my hut,i am a Apple developer so i will write some articles about iOS.i also will write some life articles,HHH.Last,Thank you all for coming.</p>
-<iframe height="44" width="300" src="http://m10.music.126.net/20171020152442/acb8ead545b1c1353bc2a13039da1cb7/ymusic/f5cf/5f7d/6fdc/1130474326e5d20435e6bad2b3015e8f.mp3" frameborder="0" allowfullscreen><br></iframe>  ]]></content>
+<iframe height="44" width="300" src="http://m10.music.126.net/20171020152442/acb8ead545b1c1353bc2a13039da1cb7/ymusic/f5cf/5f7d/6fdc/1130474326e5d20435e6bad2b3015e8f.mp3" frameborder="0" allowfullscreen><br></iframe>  
+]]></content>
       
         <categories>
             
