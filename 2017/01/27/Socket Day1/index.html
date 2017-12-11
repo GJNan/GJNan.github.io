@@ -23,7 +23,7 @@
     <!--Title-->
 
 
-<title>Archives: 2017 | Winter Is Coming</title>
+<title>iOS Socket Day1 | Winter Is Coming</title>
 
 
     <link rel="alternate" href="/atom.xml" title="Winter Is Coming" type="application/atom+xml">
@@ -35,6 +35,8 @@
 
 
 
+
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css?rev=9.12.0">
 
 
 <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.4/css/bootstrap.min.css?rev=3.3.4">
@@ -98,27 +100,130 @@
     <section class="content-wrap">
         <div class="container">
             <div class="row">
-                <main class="col-md-8 main-content ">
-                    <div id="main">
-  <div id="post-list">
-    <ul class="archives-post-list">
-    	<h1 class="info">2017年 月</h1>
-        
-          <li class="post-items" _href="/2017/10/24/iOS11一些适配问题;Masonry冲突问题/">
-            <h3 class="post-item-title">
-            	<a href="/2017/10/24/iOS11一些适配问题;Masonry冲突问题/"> iOS11一些适配问题;Masonry冲突问题 </a>
-            </h3>  
-          </li>
-        
-          <li class="post-items" _href="/2017/01/27/Socket Day1/">
-            <h3 class="post-item-title">
-            	<a href="/2017/01/27/Socket Day1/"> iOS Socket Day1 </a>
-            </h3>  
-          </li>
-        
-    </ul>
-  </div>
+                <main class="col-md-8 main-content m-post">
+                    <p id="process"></p>
+<article class="post">
+    <div class="post-head">
+        <h1 id="iOS Socket Day1">
+            
+            iOS Socket Day1
+            
+        </h1>
+        <div class="post-meta">
+    
+    
+    <span class="categories-meta fa-wrap">
+        <i class="fa fa-folder-open-o"></i>
+        <span>Technology</span>
+    </span>
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-tags"></i>
+        <span class="tags-meta">
+            
+            iOS，Socket
+            
+        </span>
+    </span>
+    
+    
+    <span class="fa-wrap">
+        <i class="fa fa-clock-o"></i>
+        <span class="date-meta">2017/01/27</span>
+    </span>
 </div>
+
+            
+            
+            <p class="fa fa-exclamation-triangle warning">
+                本文于<strong>318</strong>天之前发表，文中内容可能已经过时。
+            </p>
+            
+    </div>
+    
+    <div class="post-body">
+        <p><div class="text" style="text-align:center;"><font size="6">C+OC实现简单Socket</font></div><br>.h</p>
+<pre><code>
+#import  &lt;Foundation/Foundation.h&gt;
+@interface GJNSocketManager : NSObject
++ (instancetype)share;
+- (void)connect;
+- (void)disConnect;
+- (void)sendMsg:(NSString *)msg;
+@end
+</code></pre>
+
+<p><pre><code><br>.m</code></pre></p>
+<p>#import “GJNSocketManager.h”</p>
+<p>#import  &lt;sys/types.h&gt;</p>
+<p>#import  &lt;sys/socket.h&gt;</p>
+<p>#import  &lt;netinet/in.h&gt;</p>
+<p>#import  &lt;arpa/inet.h&gt;<br>@interface GJNSocketManager()<br>@property (nonatomic,assign)int clientSocket;<br>@end<br>@implementation GJNSocketManager<br></p>
+<p><pre><code>+ (instancetype)share<br>{<br>    static dispatch_once_t onceToken;<br>    static GJNSocketManager *manager = nil;<br>  //  static dispatch_once_t onceToken;<br>    dispatch_once(&amp;onceToken, ^{<br>        manager = [[self alloc]init];<br>        [manager initSocket];<br>         [manager pullMsg];<br>    });<br>    return manager;<br>}</code></pre></p>
+<ul>
+<li>(void)initSocket<br>{<br>  if (_clientSocket != 0) {<pre><code>[self disConnect];
+  _clientSocket = 0;
+</code></pre>  }<br>  //创建客户端socket<br>  _clientSocket = CreateClinetSocket();<br>  //服务器ip<br>  const char *sever_ip = “127.0.0.1”;<br>  //服务器端口<br>  short sever_port = 6969;<br>  //返回0链接失败<br>  if (ConnectionToServer(_clientSocket, sever_ip, sever_port)==0) {<pre><code>printf(&quot;Connect to server error\n&quot;);
+return ;
+</code></pre>  }<br>  printf(“Connect to server ok\n”);<br>}<br>static int CreateClinetSocket()<br>{<br>  int ClinetSocket = 0;<br>  //创建一个socket,返回值为Int。（注scoket其实就是Int类型）<br>  //第一个参数addressFamily IPv4(AF_INET) 或 IPv6(AF_INET6)。<br>  //第二个参数 type 表示 socket 的类型，通常是流stream(SOCK_STREAM) 或数据报文datagram(SOCK_DGRAM)<br>  //第三个参数 protocol 参数通常设置为0，以便让系统自动为选择我们合适的协议，对于 stream socket 来说会是 TCP 协议(IPPROTO_TCP)，而对于 datagram来说会是 UDP 协议(IPPROTO_UDP)。<br>  ClinetSocket = socket(AF_INET, SOCK_STREAM, 0);<br>  return ClinetSocket;<br>}<br>static int ConnectionToServer(int client_socket,const char * sever_ip, unsigned short port){<br>  //生成一个sockaddr_in的类型结构体<br>  struct sockaddr_in sAddr = {0};<br>  sAddr.sin_len = sizeof(sAddr);//地址结构的长度<br>  sAddr.sin_family = AF_INET;//表示TCP/IP协议 ipv4<br>  //inet_aton是一个改进的方法来将一个字符串IP地址转换为一个32位的网络序列IP地址<br>  //如果这个函数成功，函数的返回值非零，如果输入地址不正确则会返回零。<br>  inet_aton(sever_ip, &amp;sAddr.sin_addr);<pre><code>//htons是将整型变量从主机字节顺序转变成网络字节顺序，赋值端口号
+</code></pre>  sAddr.sin_port = htons(port);<br>  //用scoket和服务端地址，发起连接。<br>  //客户端向特定网络地址的服务器发送连接请求，连接成功返回0，失败返回 -1。<br>  //注意：该接口调用会阻塞当前线程，直到服务器返回。<br>  if (connect(client_socket, (struct sockaddr *)&amp;sAddr, sizeof(sAddr))==0) {<pre><code>return client_socket;
+</code></pre>  }<br>  return 0;<br>}<br>//接收消息</li>
+<li>(void)pullMsg<br>{<br>  NSThread *thread= [[NSThread alloc]initWithTarget:self selector:@selector(recieveAction) object:nil];<br>  [thread start];<br>}</li>
+<li>(void)recieveAction<br>{<br>  while (1) {<pre><code>char recv_Message[1024] = {0};
+recv(self.clientSocket, recv_Message, sizeof(recv_Message), 0);
+printf(&quot;%s\n&quot;,recv_Message);
+</code></pre>  }<br>}<br>//发送消息</li>
+<li>(void)sendMsg:(NSString <em>)msg<br>{<br>  const char </em>send_Message = [msg UTF8String];<br>  send(self.clientSocket, send_Message, strlen(send_Message)+1, 0);<br>}<br>//开启</li>
+<li>(void)connect<br>{<br>  [self initSocket];<br>}</li>
+</ul>
+<p>//关闭</p>
+<ul>
+<li>(void)disConnect<br>{<br>  close(self.clientSocket);<br>}<br><p><br>先创建一个socket：ClinetSocket = socket(AF_INET, SOCK_STREAM, 0);<br>然后连接服务器，绑定一个sockaddr_in类型的结构体<br><code><br>struct sockaddr_in {<br>  __uint8_t   sin_len;<br>  sa_family_t sin_family;<br>  in_port_t   sin_port;<br>  struct  in_addr sin_addr;<br>  char        sin_zero[8];<br>};<br></code><br>通过 connect(&lt;#int#&gt;, &lt;#const struct sockaddr *#&gt;, &lt;#socklen_t#&gt;)函数连接 返回值为0则连接失败<br><br><br><br>连接成功之后我们就可以调用send和recv函数进行消息收发了。<br></p>
+</li>
+</ul>
+
+    </div>
+
+    <div class="post-footer">   
+        <div>
+            
+                转载声明: 商业转载请联系作者获得授权,非商业转载请注明出处 © GJNan
+            
+        </div>
+        <div>
+            
+                License: <a href="https://creativecommons.org/licenses/by-nc-nd/3.0/" target="_blank">
+知识共享署名-非商业性使用-禁止演绎 3.0 未本地化版本许可协议（CC BY-NC-ND 3.0）
+</a>
+            
+        </div>  
+    </div>
+</article>
+
+<div class="article-nav prev-next-wrap clearfix">
+    
+        <a href="/2017/10/24/iOS11一些适配问题;Masonry冲突问题/" class="pre-post btn btn-default"><i class="fa fa-angle-left fa-fw"></i>上一篇</a>
+    
+    
+        <a href="/2016/05/27/RuntimeDay2/" class="next-post btn btn-default">下一篇<i class="fa fa-angle-right fa-fw"></i></a>
+    
+</div>
+
+
+    <div id="comments">
+        
+    <div id="uyan_frame"></div>
+    <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid="></script>
+
+
+
+
+
+
+
+
+    </div>
 
 
 
@@ -242,6 +347,11 @@
         </div>
     </div>
 </div>
+
+  <script src="/assets/highlight.pack.js?rev=@@hash"></script>
+  <script>
+    hljs.initHighlightingOnLoad(); //初始化代码高亮 
+  </script>
 
 <script src="/js/app.js?rev=@@hash"></script>
 
